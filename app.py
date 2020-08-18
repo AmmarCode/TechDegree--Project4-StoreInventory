@@ -143,7 +143,7 @@ def view_product():
 
 def backup_inventory():
     """Backup inventory"""
-    with open('Inventory_backup.csv', 'a') as csvfile:
+    with open('backup.csv', 'a') as csvfile:
         fieldnames = ['product_id', 'product_name', 'product_price',
                       'product_quantity', 'date_updated']
         productwiter = csv.DictWriter(csvfile, fieldnames=fieldnames)
@@ -158,7 +158,7 @@ def backup_inventory():
                 'product_quantity': produ.product_quantity,
                 'date_updated': produ.date_updated,
             })
-        print("Inventory_backup.csv was created successfully!")
+        print("backup.csv was created successfully!")
 
 
 menu = OrderedDict([
