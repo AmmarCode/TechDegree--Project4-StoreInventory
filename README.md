@@ -1,2 +1,2 @@
-# TechDegree--Project4-StoreInventory
+# TechDegree-Project4-StoreInventory
  
