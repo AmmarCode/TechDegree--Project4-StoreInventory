@@ -85,28 +85,41 @@ def menu_loop():
 
 def add_product():
     """Add a product"""
-    prod_name = input("Enter product name: ")
-    clear()
-    prod_price = input("Enter product price in the form of"
-                       "(example: $1:50):  ").strip('$').replace('.', '')
-    prod_price = int(prod_price)
-    clear()
-    prod_quantity = int(input("Etner product quantity: "))
-    clear()
-    if prod_name and prod_price and prod_quantity:
-        confirm = input("Save product? [Y/N]: ").lower().strip()
-        clear()
-        if confirm == 'y':
-            try:
-                Product.create(product_name=prod_name,
-                               product_price=prod_price,
-                               product_quantity=prod_quantity)
-            except IntegrityError:
-                product_record = Product.get(product_name=prod_name)
-                product_record.product_price = prod_price
-                product_record.product_quantity = prod_quantity
-                product_record.date_updated = datetime.datetime.now().date()
-                product_record.save()
+    while True:
+        try:
+            prod_name = input("Enter product name: ")
+            clear()
+            prod_price = input("Enter product price in the form of"
+                            "(example: $1:50):  ").strip('$').replace('.', '')
+            prod_price = int(prod_price)
+            clear()
+            prod_quantity = int(input("Etner product quantity in digits(example: 123): "))
+            date_added = datetime.datetime.now().date()
+            clear()
+        except ValueError:
+            print("You must enter required details as shown in example.")
+        else:
+            if prod_name and prod_price and prod_quantity:
+                confirm = input("Save product? [Y/N]: ").lower().strip()
+                clear()
+                if confirm == 'y':
+                    try:
+                        added_prod = Product.create(product_name=prod_name,
+                                                    product_price=prod_price,
+                                                    product_quantity=prod_quantity,
+                                                    date_updated=date_added)
+                        if added_prod.get(Product.product_name) in Product.get(Product.product_name):
+                            if added_prod.date_updated > Product.date_updated:
+                                continue
+                    except IntegrityError:
+                        product_record = Product.get(product_name=prod_name)
+                        product_record.product_price = prod_price
+                        product_record.product_quantity = prod_quantity
+                        product_record.date_updated = datetime.datetime.now().date()
+                        product_record.save()
+                    else:
+                        break
+            break
 
 
 def view_product():

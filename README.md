@@ -23,3 +23,9 @@ Program will prevent creating duplicate products and will allow updates to exist
 REQUIREMENTS
 ------------
 Python
+import datetime
+import csv
+import os
+from collections import OrderedDict
+
+from peewee import *
