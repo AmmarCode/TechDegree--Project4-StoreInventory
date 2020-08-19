@@ -22,7 +22,7 @@ Program will prevent creating duplicate products and will allow updates to exist
 
 REQUIREMENTS
 ------------
-Python
+```Python
 
 import datetime
 
@@ -32,4 +32,4 @@ import os
 
 from collections import OrderedDict
 
-from peewee import *
+from peewee import *```
