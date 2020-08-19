@@ -63,8 +63,9 @@ def menu_loop():
     choice = None
     clear()
     while True:
-        print('='*6 + ' Menu ' + '='*6 + '\n\n')
-        print("Enter 'q' to quit.\n")
+        print('=' * 6 + ' Menu ' + '=' * 6 + '\n\n')
+        print("Enter 'q' to quit\n\nSelect an option from menu:")
+
         for key, value in menu.items():
             print("{}) {}".format(key, value.__doc__))
         try:
@@ -79,7 +80,7 @@ def menu_loop():
                 menu[choice]()
 
         if choice == 'q':
-            print('\n\n'+'='*14+"\nSee you later!\n"+'='*14)
+            print('\n\n' + '=' * 14 + "\nSee you later!\n" + '=' * 14)
             break
 
 
@@ -90,12 +91,14 @@ def add_product():
             prod_name = input("Enter product name: ")
             clear()
             prod_price = input("Enter product price in the form of"
-                            "(example: $1:50):  ").strip('$').replace('.', '')
+                               "(example: $1:50):  ").strip('$').replace('.', '')
+            if len(prod_price) < 3:
+                prod_price = prod_price + '00'
             prod_price = int(prod_price)
             clear()
-            prod_quantity = int(input("Etner product quantity in digits(example: 123): "))
+            prod_quantity = int(
+                input("Enter product quantity in digits(example: 123): "))
             date_added = datetime.datetime.now().date()
-            clear()
         except ValueError:
             print("You must enter required details as shown in example.")
         else:
@@ -108,18 +111,23 @@ def add_product():
                                                     product_price=prod_price,
                                                     product_quantity=prod_quantity,
                                                     date_updated=date_added)
-                        if added_prod.get(Product.product_name) in Product.get(Product.product_name):
-                            if added_prod.date_updated > Product.date_updated:
-                                continue
                     except IntegrityError:
                         product_record = Product.get(product_name=prod_name)
-                        product_record.product_price = prod_price
-                        product_record.product_quantity = prod_quantity
-                        product_record.date_updated = datetime.datetime.now().date()
-                        product_record.save()
+                        if product_record.date_updated > Product.date_updated:
+                            product_record.product_price = prod_price
+                            product_record.product_quantity = prod_quantity
+                            product_record.date_updated = date_added
+                            product_record.save()
                     else:
                         break
             break
+
+
+def delete_product(product):
+    """Delete a product"""
+    if input("Are you sure you want to delete this product? [Y/N] ").lower() == 'y':
+        product.delete_instance()
+        print("product deleted")
 
 
 def view_product():
@@ -129,29 +137,34 @@ def view_product():
             product = Product.get(Product.product_id)
             len_inv = product.select().count()
             Product.select()
-            search_id = int(
-                input(f"Enter Product id between 1 & {len_inv}:> "))
+            search_id = input(f"Enter Product id between 1 & {len_inv}:> ")
+            if search_id == 'q':
+                break
+            search_id = int(search_id)
             product = Product.get(Product.product_id == search_id)
             if search_id not in Product.product_id:
                 raise DoesNotExist
         except DoesNotExist:
-            print(f'{search_id} Product id not in inventory list, Try again')
+            print('This product id not in inventory list, Try again')
         except ValueError:
-            print(f'{search_id} Product id not in inventory list, Try again')
+            print('This product id not in inventory list, Try again(Use digits only)')
         else:
             clear()
             print(f'Product id: {product.product_id}')
             print(f'Product: {product.product_name}')
-            print(f'Price: ${"{:.2f}".format(product.product_price/100)}')
+            print(f'Price: ${"{:.2f}".format(product.product_price / 100)}')
             print(f'Quantity: {product.product_quantity}')
             print(f'Date updated: {product.date_updated}')
-            print('\n\nEnter) To pick another product')
-            print('Q) Return to main menu')
+            print('\n\nPress Enter To pick another product')
+            print('d) Delete product')
+            print('q) Return to main menu')
 
-            next_action = input('Action: [Enter/Q]').lower().strip()
+            next_action = input('Action: [Enter/d/q]').lower().strip()
             clear()
             if next_action == 'q':
                 break
+            elif next_action == 'd':
+                delete_product(product)
 
 
 def backup_inventory():
@@ -159,12 +172,12 @@ def backup_inventory():
     with open('backup.csv', 'a') as csvfile:
         fieldnames = ['product_id', 'product_name', 'product_price',
                       'product_quantity', 'date_updated']
-        productwiter = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        productwriter = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
-        productwiter.writeheader()
+        productwriter.writeheader()
         prod_lst = Product.select().order_by(Product.product_id.asc())
         for produ in prod_lst:
-            productwiter.writerow({
+            productwriter.writerow({
                 'product_id': produ.product_id,
                 'product_name': produ.product_name,
                 'product_price': produ.product_price,
