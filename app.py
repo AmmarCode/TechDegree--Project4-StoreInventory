@@ -113,12 +113,15 @@ def add_product():
                                        product_quantity=prod_quantity,
                                        date_updated=date_added)
                     except IntegrityError:
-                        product_record = Product.get(product_name=prod_name)
-                        if date_added < Product.date_updated:
-                            product_record.product_price = prod_price
-                            product_record.product_quantity = prod_quantity
-                            product_record.date_updated = date_added
-                            product_record.save()
+                        existing_product = Product.select().where(Product.product_name == prod_name)
+                        existing_date = existing_product.get().date_updated
+                        if existing_date <= date_added:
+                            Product.update(product_name=prod_name,
+                                           product_price=prod_price,
+                                           product_quantity=prod_quantity,
+                                           date_updated=date_added).where(
+                                Product.product_name == prod_name).execute()
+                            print("Existing product price updated")
                     else:
                         break
             break
@@ -135,9 +138,8 @@ def view_product():
     """View a product"""
     while True:
         try:
-            product = Product.get(Product.product_id)
-            len_inv = product.select().count()
-            Product.select()
+            inv = Product.select()
+            len_inv = inv.count()
             search_id = input(f"Enter Product id between 1 & {len_inv}:> ")
             if search_id == 'q':
                 break
