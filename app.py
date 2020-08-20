@@ -9,7 +9,7 @@ db = SqliteDatabase('inventory.db')
 
 
 class Product(Model):
-    product_id = IntegerField(primary_key=True)
+    product_id = AutoField(primary_key=True)
     product_name = CharField(max_length=100, unique=True)
     product_quantity = IntegerField(default=0)
     product_price = IntegerField(default=0)
@@ -52,10 +52,11 @@ def clean_data():
                                date_updated=row['date_updated'])
             except IntegrityError:
                 product_record = Product.get(product_name=row['product_name'])
-                product_record.product_price = (row['product_price'])
-                product_record.product_quantity = row['product_quantity']
-                product_record.date_updated = datetime.datetime.now().date()
-                product_record.save()
+                if product_record.date_updated < row['date_updated']:
+                    product_record.product_price = (row['product_price'])
+                    product_record.product_quantity = row['product_quantity']
+                    product_record.date_updated = row['date_updated']
+                    product_record.save()
 
 
 def menu_loop():
@@ -107,13 +108,13 @@ def add_product():
                 clear()
                 if confirm == 'y':
                     try:
-                        added_prod = Product.create(product_name=prod_name,
-                                                    product_price=prod_price,
-                                                    product_quantity=prod_quantity,
-                                                    date_updated=date_added)
+                        Product.create(product_name=prod_name,
+                                       product_price=prod_price,
+                                       product_quantity=prod_quantity,
+                                       date_updated=date_added)
                     except IntegrityError:
                         product_record = Product.get(product_name=prod_name)
-                        if product_record.date_updated > Product.date_updated:
+                        if date_added < Product.date_updated:
                             product_record.product_price = prod_price
                             product_record.product_quantity = prod_quantity
                             product_record.date_updated = date_added
