@@ -20,13 +20,3 @@ User can create a back up csv file for the database
 Program will prevent creating duplicate products and will allow updates to existing products by adding them using the same stored name with updated details.
 
 
-REQUIREMENTS
-------------
-```Python
-
-import datetime
-import csv
-import os
-from collections import OrderedDict
-
-from peewee import *```
